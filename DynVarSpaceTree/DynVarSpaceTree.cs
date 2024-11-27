@@ -36,7 +36,18 @@ namespace DynVarSpaceTree
             Config = GetConfiguration();
             Config.Save(true);
             harmony.PatchAll();
-            CustomUILib.CustomUILib.AddCustomInspectorAfter<DynamicVariableSpace>(BuildInspectorUI);
+        }
+
+        [HarmonyPatch(typeof(WorkerInspector), nameof(WorkerInspector.BuildInspectorUI))]
+        class WorkerInspectorPatch
+        {
+            static void Postfix(WorkerInspector __instance, Worker worker, UIBuilder ui)
+            {
+                if (worker is DynamicVariableSpace space)
+                {
+                    BuildInspectorUI(space, ui);
+                }
+            }
         }
 
         private static void BuildInspectorUI(DynamicVariableSpace space, UIBuilder ui)
