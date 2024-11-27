@@ -1,4 +1,4 @@
-using Elements.Assets;
+﻿using Elements.Assets;
 using Elements.Core;
 using FrooxEngine;
 using FrooxEngine.UIX;
@@ -22,8 +22,8 @@ namespace DynVarSpaceTree
 
         private static ModConfiguration Config;
 
-        public override string Author => "Banane9";
-        public override string Link => "https://github.com/Banane9/NeosDynVarSpaceTree";
+        public override string Author => "esnya, Banane9";
+        public override string Link => "https://github.com/esnya/ResoniteDynVarSpaceTree";
         public override string Name => "DynVarSpaceTree";
         public override string Version => "3.0.0";
 
