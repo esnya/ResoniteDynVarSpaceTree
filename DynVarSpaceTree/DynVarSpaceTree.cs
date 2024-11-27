@@ -1,18 +1,18 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using BaseX;
+using Elements.Assets;
+using Elements.Core;
 using FrooxEngine;
 using FrooxEngine.UIX;
 using HarmonyLib;
-using NeosModLoader;
+using ResoniteModLoader;
+using System;
+using System.Collections;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 
 namespace DynVarSpaceTree
 {
-    public class DynVarSpaceTree : NeosMod
+    public class DynVarSpaceTree : ResoniteMod
     {
         [AutoRegisterConfigKey]
         private static readonly ModConfigurationKey<bool> EnableLinkedVariablesList = new("EnableLinkedVariablesList", "Allow generating a list of dynamic variable definitions for a space.", () => true);
@@ -25,8 +25,11 @@ namespace DynVarSpaceTree
         public override string Author => "Banane9";
         public override string Link => "https://github.com/Banane9/NeosDynVarSpaceTree";
         public override string Name => "DynVarSpaceTree";
-        public override string Version => "2.0.0";
+        public override string Version => "3.0.0";
 
+        private static FieldInfo _DynamicValues = null, _IdentityName = null, _IdentityType = null;
+        private static PropertyInfo _Keys = null;
+        
         public override void OnEngineInit()
         {
             var harmony = new Harmony($"{Author}.{Name}");
@@ -38,15 +41,11 @@ namespace DynVarSpaceTree
 
         private static void BuildInspectorUI(DynamicVariableSpace space, UIBuilder ui)
         {
-            var outputField = ui.Current.AttachComponent<ValueField<string>>();
-
             if (Config.GetValue(EnableLinkedVariablesList))
-                MakeButton(ui, "Output names of linked Variables", () => OutputVariableNames(space, outputField.Value));
+                MakeButton(ui, "[Mod] Output names of linked Variables", () => OutputVariableNames(space));
 
             if (Config.GetValue(EnableVariableHierarchy))
-                MakeButton(ui, "Output tree of linked Variable Hierarchy", () => OutputVariableHierarchy(space, outputField.Value));
-
-            SyncMemberEditorBuilder.BuildField(outputField.Value, "Output", outputField.GetSyncMemberFieldInfo("Value"), ui);
+                MakeButton(ui, "[Mod] Output tree of linked Variable Hierarchy", () => OutputVariableHierarchy(space));
         }
 
         private static void MakeButton(UIBuilder ui, string text, Action action)
@@ -62,33 +61,68 @@ namespace DynVarSpaceTree
             valueField.OnValueChange += field => action();
         }
 
-        private static void OutputVariableHierarchy(DynamicVariableSpace space, Sync<string> target)
+        private static void SpawnText(Worker worker, string text)
+        {
+            var position = worker.LocalUserRoot.ViewPosition;
+            var rotation = worker.LocalUserRoot.ViewRotation;
+
+            UniversalImporter.Import(AssetClass.Unknown, Enumerable.Repeat(text, 1), worker.World, position + rotation * new float3(0, 0.5f, 1.0f), rotation);
+        }
+
+        private static void OutputVariableHierarchy(DynamicVariableSpace space)
         {
             var hierarchy = new SpaceTree(space);
 
-            if (hierarchy.Process())
-                target.Value = hierarchy.ToString();
-            else
-                target.Value = "";
+            if (hierarchy.Process()) {
+                SpawnText(space, hierarchy.ToString());
+            }
         }
 
-        private static void OutputVariableNames(DynamicVariableSpace space, Sync<string> target)
+        private static IEnumerable GetDynamicValueKeys(DynamicVariableSpace space)
+        {
+            if (_DynamicValues is null)
+            {
+                _DynamicValues = space.GetType().GetField("_dynamicValues", BindingFlags.NonPublic | BindingFlags.Instance);
+            }
+            var values = _DynamicValues.GetValue(space);
+            if (_Keys is null)
+            {
+                _Keys = values.GetType().GetProperty("Keys");
+            }
+
+            return _Keys.GetValue(values) as IEnumerable;
+        }
+
+        private static (string, Type) GetIdentityFields(object identity)
+        {
+            if (_IdentityName is null)
+            {
+                var type = identity.GetType();
+                _IdentityName = type.GetField("name");
+                _IdentityType = type.GetField("type");
+            }
+
+            return (_IdentityName.GetValue(identity) as string, _IdentityType.GetValue(identity) as Type);
+        }
+
+        private static void OutputVariableNames(DynamicVariableSpace space)
         {
             var names = new StringBuilder("Variables linked to Namespace ");
             names.Append(space.SpaceName);
             names.AppendLine(":");
 
-            foreach (var identity in space._dynamicValues.Keys)
+            foreach (var identity in GetDynamicValueKeys(space)) 
             {
-                names.Append(identity.name);
+                var (name, type) = GetIdentityFields(identity);
+                names.Append(name);
                 names.Append(" (");
-                names.AppendTypeName(identity.type);
+                names.AppendTypeName(type);
                 names.AppendLine(")");
             }
 
             names.Remove(names.Length - Environment.NewLine.Length, Environment.NewLine.Length);
 
-            target.Value = names.ToString();
+            SpawnText(space, names.ToString());
         }
     }
 }
