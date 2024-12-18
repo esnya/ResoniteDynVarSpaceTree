@@ -10,6 +10,10 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
+#if DEBUG
+using ResoniteHotReloadLib;
+#endif
+
 namespace DynVarSpaceTree
 {
     public class DynVarSpaceTree : ResoniteMod
@@ -29,14 +33,30 @@ namespace DynVarSpaceTree
 
         private static FieldInfo _DynamicValues = null, _IdentityName = null, _IdentityType = null;
         private static PropertyInfo _Keys = null;
-        
+        private static Harmony harmony = null;
         public override void OnEngineInit()
         {
-            var harmony = new Harmony($"{Author}.{Name}");
+            harmony = new Harmony($"{Author}.{Name}");
             Config = GetConfiguration();
             Config.Save(true);
             harmony.PatchAll();
+
+#if DEBUG
+            HotReloader.RegisterForHotReload(this);
         }
+
+        internal static void BeforeHotReload()
+        {
+            harmony?.UnpatchAll();
+        }
+
+
+        internal static void OnHotReload(ResoniteMod modInstance)
+        {
+            modInstance.OnEngineInit();
+#endif
+        }
+
 
         [HarmonyPatch(typeof(WorkerInspector), nameof(WorkerInspector.BuildInspectorUI))]
         class WorkerInspectorPatch
@@ -77,14 +97,15 @@ namespace DynVarSpaceTree
             var position = worker.LocalUserRoot.ViewPosition;
             var rotation = worker.LocalUserRoot.ViewRotation;
 
-            UniversalImporter.Import(AssetClass.Unknown, Enumerable.Repeat(text, 1), worker.World, position + rotation * new float3(0, 0.5f, 1.0f), rotation);
+            UniversalImporter.Import(AssetClass.Unknown, Enumerable.Repeat(text, 1), worker.World, position + (rotation * new float3(0, 0.5f, 1.0f)), rotation);
         }
 
         private static void OutputVariableHierarchy(DynamicVariableSpace space)
         {
             var hierarchy = new SpaceTree(space);
 
-            if (hierarchy.Process()) {
+            if (hierarchy.Process())
+            {
                 SpawnText(space, hierarchy.ToString());
             }
         }
@@ -122,7 +143,7 @@ namespace DynVarSpaceTree
             names.Append(space.SpaceName);
             names.AppendLine(":");
 
-            foreach (var identity in GetDynamicValueKeys(space)) 
+            foreach (var identity in GetDynamicValueKeys(space))
             {
                 var (name, type) = GetIdentityFields(identity);
                 names.Append(name);

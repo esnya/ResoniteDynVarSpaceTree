@@ -20,6 +20,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+	<Reference Include="ResoniteModLoader">
+		<HintPath>$(ResonitePath)Libraries\ResoniteModLoader.dll</HintPath>
+	</Reference>
     <Reference Include="0Harmony">
       <HintPath>$(ResonitePath)rml_libs\0Harmony.dll</HintPath>
     </Reference>
@@ -32,13 +35,17 @@
     <Reference Include="FrooxEngine">
       <HintPath>$(ResonitePath)Resonite_Data\Managed\FrooxEngine.dll</HintPath>
     </Reference>
-    <Reference Include="ResoniteModLoader">
-      <HintPath>$(ResonitePath)Libraries\ResoniteModLoader.dll</HintPath>
-    </Reference>
+	  <Reference Include="ResoniteHotReloadLib">
+		  <HintPath>$(ResonitePath)rml_libs\ResoniteHotReloadLib.dll</HintPath>
+	  </Reference>
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(CopyToMods)'=='true'">
-    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ResonitePath)rml_mods" />
-    <Message Text="Copied $(TargetFileName) to $(ResonitePath)rml_mods" Importance="high" />
-  </Target>
+<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(CopyToMods)'=='true'">
+	<Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ResonitePath)rml_mods" />
+	<Message Text="Copied $(TargetFileName) to $(ResonitePath)rml_mods" Importance="high" />
+</Target>
+<Target Name="PostBuildHotReload" AfterTargets="PostBuildEvent" Condition="'$(CopyToMods)'=='true' and '$(Configuration)' == 'Debug'">
+	<Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ResonitePath)rml_mods\HotReloadMods" />
+	<Message Text="Copied $(TargetFileName) to $(ResonitePath)rml_mods\HotReloadMods" Importance="high" />
+</Target>
 </Project>
