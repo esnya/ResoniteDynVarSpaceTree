@@ -1,14 +1,13 @@
-﻿using Elements.Assets;
-using Elements.Core;
-using FrooxEngine;
+﻿using FrooxEngine;
 using FrooxEngine.UIX;
 using HarmonyLib;
 using ResoniteModLoader;
 using System;
 using System.Collections;
-using System.Linq;
 using System.Reflection;
 using System.Text;
+using FrooxEngine.Undo;
+
 
 #if DEBUG
 using ResoniteHotReloadLib;
@@ -47,7 +46,7 @@ namespace DynVarSpaceTree
 
         internal static void BeforeHotReload()
         {
-            harmony?.UnpatchAll();
+            harmony?.UnpatchAll(harmony?.Id);
         }
 
 
@@ -92,12 +91,17 @@ namespace DynVarSpaceTree
             valueField.OnValueChange += field => action();
         }
 
-        private static void SpawnText(Worker worker, string text)
+        private static void SpawnText(Worker worker, string heading, string text)
         {
             var position = worker.LocalUserRoot.ViewPosition;
             var rotation = worker.LocalUserRoot.ViewRotation;
 
-            UniversalImporter.Import(AssetClass.Unknown, Enumerable.Repeat(text, 1), worker.World, position + (rotation * new float3(0, 0.5f, 1.0f)), rotation);
+            var world = worker.World;
+
+            var slot = world.LocalUserSpace.AddSlot(heading);
+            slot.PositionInFrontOfUser();
+            UniversalImporter.SpawnText(slot, heading, text);
+            slot.CreateSpawnUndoPoint();
         }
 
         private static void OutputVariableHierarchy(DynamicVariableSpace space)
@@ -106,7 +110,7 @@ namespace DynVarSpaceTree
 
             if (hierarchy.Process())
             {
-                SpawnText(space, hierarchy.ToString());
+                SpawnText(space, "Dynamic Variable Hierarchy", hierarchy.ToString());
             }
         }
 
@@ -154,7 +158,7 @@ namespace DynVarSpaceTree
 
             names.Remove(names.Length - Environment.NewLine.Length, Environment.NewLine.Length);
 
-            SpawnText(space, names.ToString());
+            SpawnText(space, "Dynamic Variables", names.ToString());
         }
     }
 }
