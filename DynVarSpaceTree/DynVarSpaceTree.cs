@@ -72,6 +72,15 @@ namespace DynVarSpaceTree
                 {
                     BuildInspectorUI(space, ui);
                 }
+                else if (worker is IDynamicVariable var && worker is IComponent c)
+                {
+                    DynamicVariableHelper.ParsePath(var.Name, out var spaceName, out var _);
+                    var foundSpace = c.Slot.FindSpace(spaceName);
+                    if (foundSpace != null)
+                    {
+                        BuildInspectorUI(foundSpace, ui);
+                    }
+                }
             }
         }
 
