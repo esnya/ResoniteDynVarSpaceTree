@@ -78,10 +78,14 @@ namespace DynVarSpaceTree
         private static void BuildInspectorUI(DynamicVariableSpace space, UIBuilder ui)
         {
             if (Config.GetValue(EnableLinkedVariablesList))
+            {
                 MakeButton(ui, "[Mod] Output names of linked Variables", () => OutputVariableNames(space));
+            }
 
             if (Config.GetValue(EnableVariableHierarchy))
+            {
                 MakeButton(ui, "[Mod] Output tree of linked Variable Hierarchy", () => OutputVariableHierarchy(space));
+            }
         }
 
         private static void MakeButton(UIBuilder ui, string text, Action action)
