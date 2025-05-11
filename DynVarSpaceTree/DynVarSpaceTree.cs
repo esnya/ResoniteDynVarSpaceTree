@@ -33,12 +33,18 @@ namespace DynVarSpaceTree
         private static FieldInfo _DynamicValues = null, _IdentityName = null, _IdentityType = null;
         private static PropertyInfo _Keys = null;
         private static Harmony harmony = null;
-        public override void OnEngineInit()
+
+        private static void Init(ResoniteMod mod)
         {
-            harmony = new Harmony($"{Author}.{Name}");
-            Config = GetConfiguration();
+            harmony = new Harmony($"{mod.Author}.{mod.Name}");
+            Config = mod.GetConfiguration();
             Config.Save(true);
             harmony.PatchAll();
+        }
+
+        public override void OnEngineInit()
+        {
+            Init(this);
 
 #if DEBUG
             HotReloader.RegisterForHotReload(this);
@@ -52,7 +58,7 @@ namespace DynVarSpaceTree
 
         internal static void OnHotReload(ResoniteMod modInstance)
         {
-            modInstance.OnEngineInit();
+            Init(modInstance);
 #endif
         }
 
