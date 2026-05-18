@@ -192,7 +192,7 @@ public sealed class DynVarSpaceTree : ResoniteMod
             }
             else if (worker is IDynamicVariable variable and IComponent component)
             {
-                DynamicVariableHelper.ParsePath(variable.Name, out string spaceName, out _);
+                DynamicVariableHelper.ParsePath(variable.VariableName, out string spaceName, out _);
                 DynamicVariableSpace? foundSpace = component.Slot.FindSpace(spaceName);
                 if (foundSpace is not null)
                 {
