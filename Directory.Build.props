@@ -163,7 +163,7 @@
     <PackageReference Include="MinVer" PrivateAssets="all" />
     <PackageReference Include="Resonite.GameLibs" GeneratePathProperty="true" ExcludeAssets="all" PrivateAssets="all" />
     <EditorConfigFiles Remove="$(MSBuildProjectDirectory)**/*.editorconfig" />
-    <None Include="$(MSBuildThisFileDirectory)README.md" Link="README.md" />
+    <None Include="$(MSBuildThisFileDirectory)README.md" Link="README.md" Pack="true" PackagePath="\" />
     <None Include="$(MSBuildThisFileDirectory)license.txt" Link="license.txt" />
     <None Include="$(MSBuildThisFileDirectory).editorconfig" Link=".editorconfig" />
     <None Include="$(MSBuildThisFileDirectory).gitignore" Link=".gitignore" />
