@@ -1,93 +1,95 @@
-﻿using FrooxEngine;
-using HarmonyLib;
-using System;
-using System.Linq;
 using System.Text;
 
-namespace DynVarSpaceTree
+using FrooxEngine;
+using HarmonyLib;
+
+namespace DynVarSpaceTree;
+
+internal sealed class SpaceTree
 {
-    internal class SpaceTree
+    private readonly Slot slot;
+    private readonly DynamicVariableSpace space;
+    private SpaceTree[] children = [];
+    private IDynamicVariable[] dynVars = [];
+
+    public SpaceTree(DynamicVariableSpace space, Slot? slot = null)
     {
-        private readonly Slot slot;
-        private readonly DynamicVariableSpace space;
-        private SpaceTree[] children;
-        private IDynamicVariable[] dynVars;
+        this.space = space;
+        this.slot = slot ?? space.Slot;
+    }
 
-        public SpaceTree(DynamicVariableSpace space, Slot slot = null)
-        {
-            this.space = space;
-            this.slot = slot ?? space.Slot;
-        }
+    public bool Process()
+    {
+        dynVars = [.. slot.GetComponents<IDynamicVariable>(IsLinkedDynVar)];
 
-        public bool Process()
-        {
-            dynVars = slot.GetComponents<IDynamicVariable>(isLinkedDynVar).ToArray();
+        children = [.. slot.Children.Select(child => new SpaceTree(space, child)).Where(static tree => tree.Process())];
 
-            children = slot.Children.Select(child => new SpaceTree(space, child)).Where(tree => tree.Process()).ToArray();
+        return dynVars.Length > 0 || children.Length > 0;
+    }
 
-            return dynVars.Any() || children.Any();
-        }
+    public override string ToString()
+    {
+        StringBuilder builder = new(space.Slot.Name);
+        builder.Append(": Namespace ").AppendLine(space.SpaceName);
 
-        public override string ToString()
-        {
-            var builder = new StringBuilder(space.Slot.Name).Append(": Namespace ").AppendLine(space.SpaceName);
+        BuildString(builder, "");
+        builder.Remove(builder.Length - Environment.NewLine.Length, Environment.NewLine.Length);
 
-            buildString(builder, "");
-            builder.Remove(builder.Length - Environment.NewLine.Length, Environment.NewLine.Length);
+        return builder.ToString();
+    }
 
-            return builder.ToString();
-        }
+    private static void AppendDynVar(StringBuilder builder, string indent, IDynamicVariable dynVar, bool last = false)
+    {
+        builder.Append(indent);
+        builder.Append(last ? "└─" : "├─");
+        builder.Append(dynVar.VariableName);
+        builder.Append(" (");
+        builder.AppendTypeName(dynVar.GetType());
+        builder.AppendLine(")");
+    }
 
-        private void appendDynVar(StringBuilder builder, string indent, IDynamicVariable dynVar, bool last = false)
+    private static void AppendSlot(StringBuilder builder, string indent, SpaceTree child, bool first, bool last)
+    {
+        if (!first)
         {
             builder.Append(indent);
-            builder.Append(last ? "└─" : "├─");
-            builder.Append(dynVar.VariableName);
-            builder.Append(" (");
-            builder.AppendTypeName(dynVar.GetType());
-            builder.AppendLine(")");
+            builder.AppendLine("│");
         }
 
-        private void appendSlot(StringBuilder builder, string indent, SpaceTree child, bool first, bool last)
+        builder.Append(indent);
+        builder.Append(last ? "└─" : "├─");
+        builder.AppendLine(child.slot.Name);
+
+        child.BuildString(builder, indent + (last ? "  " : "│ "));
+    }
+
+    private void BuildString(StringBuilder builder, string indent)
+    {
+        if (dynVars.Length > 0)
         {
-            if (!first)
+            for (int i = 0; i < dynVars.Length - 1; ++i)
+            {
+                AppendDynVar(builder, indent, dynVars[i]);
+            }
+
+            AppendDynVar(builder, indent, dynVars[^1], children.Length == 0);
+
+            if (children.Length > 0)
             {
                 builder.Append(indent);
                 builder.AppendLine("│");
             }
-
-            builder.Append(indent);
-            builder.Append(last ? "└─" : "├─");
-            builder.AppendLine(child.slot.Name);
-
-            child.buildString(builder, indent + (last ? "  " : "│ "));
         }
 
-        private void buildString(StringBuilder builder, string indent)
+        for (int i = 0; i < children.Length; ++i)
         {
-            if (dynVars.Any())
-            {
-                for (var i = 0; i < dynVars.Length - 1; ++i)
-                    appendDynVar(builder, indent, dynVars[i]);
-
-                appendDynVar(builder, indent, dynVars[dynVars.Length - 1], !children.Any());
-
-                if (children.Any())
-                {
-                    builder.Append(indent);
-                    builder.AppendLine("│");
-                }
-            }
-
-            if (children.Any())
-                for (var i = 0; i < children.Length; ++i)
-                    appendSlot(builder, indent, children[i], i == 0, i == children.Length - 1);
+            AppendSlot(builder, indent, children[i], i == 0, i == children.Length - 1);
         }
+    }
 
-        private bool isLinkedDynVar(IDynamicVariable dynVar)
-        {
-            // Can't directly access the handler fields without casting to the concrete generic type
-            return Traverse.Create(dynVar).Field("handler").Field("_currentSpace").GetValue() == space;
-        }
+    private bool IsLinkedDynVar(IDynamicVariable dynVar)
+    {
+        // Concrete dynamic variable handler types are generic, so Harmony Traverse keeps this reflection localized.
+        return ReferenceEquals(Traverse.Create(dynVar).Field("handler").Field("_currentSpace").GetValue(), space);
     }
 }

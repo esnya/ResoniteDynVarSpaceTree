@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/DynVarSpaceTree/">
+    <Project Path="DynVarSpaceTree/DynVarSpaceTree.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/DynVarSpaceTree.Tests/DynVarSpaceTree.Tests.csproj" />
+  </Folder>
+</Solution>
