@@ -1,32 +1,32 @@
-﻿using System;
 using System.Text;
 
-namespace DynVarSpaceTree
+namespace DynVarSpaceTree;
+
+internal static class TypeExtensions
 {
-    internal static class TypeExtensions
+    public static void AppendTypeName(this StringBuilder builder, Type type)
     {
-        public static void AppendTypeName(this StringBuilder builder, Type type)
+        if (!type.IsGenericType)
         {
-            if (!type.IsGenericType)
-            {
-                builder.Append(type.Name);
-                return;
-            }
-
-            builder.Append(type.Name.Substring(0, type.Name.IndexOf('`')));
-            builder.Append('<');
-
-            var appendComma = false;
-            foreach (var arg in type.GetGenericArguments())
-            {
-                if (appendComma)
-                    builder.Append(", ");
-
-                builder.AppendTypeName(arg);
-                appendComma = true;
-            }
-
-            builder.Append('>');
+            builder.Append(type.Name);
+            return;
         }
+
+        builder.Append(type.Name[..type.Name.IndexOf('`', StringComparison.Ordinal)]);
+        builder.Append('<');
+
+        bool appendComma = false;
+        foreach (Type arg in type.GetGenericArguments())
+        {
+            if (appendComma)
+            {
+                builder.Append(", ");
+            }
+
+            builder.AppendTypeName(arg);
+            appendComma = true;
+        }
+
+        builder.Append('>');
     }
 }

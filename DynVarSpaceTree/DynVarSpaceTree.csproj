@@ -1,51 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <ProjectGuid>{6F2EB9E5-21CB-4297-89F4-6B1977231883}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DynVarSpaceTree</RootNamespace>
-    <AssemblyTitle>DynVarSpaceTree</AssemblyTitle>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <LangVersion>10</LangVersion>
-    <TargetFramework>net472</TargetFramework>
     <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
-    <ResonitePath>$(MSBuildThisFileDirectory)Resonite</ResonitePath>
-    <ResonitePath Condition="Exists('C:\Program Files (x86)\Steam\steamapps\common\Resonite\')">C:\Program Files (x86)\Steam\steamapps\common\Resonite\</ResonitePath>
-    <ResonitePath Condition="Exists('$(HOME)/.steam/steam/steamapps/common/Resonite/')">$(HOME)/.steam/steam/steamapps/common/Resonite/</ResonitePath>
-    <CopyToMods Condition="'$(CopyToMods)'==''">true</CopyToMods>
-    <DebugSymbols Condition="'$(Configuration)'=='Release'">false</DebugSymbols>
-    <DebugType Condition="'$(Configuration)'=='Release'">None</DebugType>
-    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
-
-  <ItemGroup>
-	<Reference Include="ResoniteModLoader">
-		<HintPath>$(ResonitePath)Libraries\ResoniteModLoader.dll</HintPath>
-	</Reference>
-    <Reference Include="0Harmony">
-      <HintPath>$(ResonitePath)rml_libs\0Harmony.dll</HintPath>
-    </Reference>
-	<Reference Include="Elements.Assets">
-	  <HintPath>$(ResonitePath)Resonite_Data\Managed\Elements.Assets.dll</HintPath>
-	</Reference>
-    <Reference Include="Elements.Core">
-      <HintPath>$(ResonitePath)Resonite_Data\Managed\Elements.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="FrooxEngine">
-      <HintPath>$(ResonitePath)Resonite_Data\Managed\FrooxEngine.dll</HintPath>
-    </Reference>
-	  <Reference Include="ResoniteHotReloadLib">
-		  <HintPath>$(ResonitePath)rml_libs\ResoniteHotReloadLib.dll</HintPath>
-	  </Reference>
-  </ItemGroup>
-
-<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(CopyToMods)'=='true'">
-	<Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ResonitePath)rml_mods" />
-	<Message Text="Copied $(TargetFileName) to $(ResonitePath)rml_mods" Importance="high" />
-</Target>
-<Target Name="PostBuildHotReload" AfterTargets="PostBuildEvent" Condition="'$(CopyToMods)'=='true' and '$(Configuration)' == 'Debug'">
-	<Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ResonitePath)rml_mods\HotReloadMods" />
-	<Message Text="Copied $(TargetFileName) to $(ResonitePath)rml_mods\HotReloadMods" Importance="high" />
-</Target>
 </Project>
