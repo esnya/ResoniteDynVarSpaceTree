@@ -1,10 +1,11 @@
-name: ci
+name: CI
 
 permissions:
-  contents: write
+  contents: read
 
 on:
   pull_request:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -36,16 +37,16 @@ jobs:
           Invoke-WebRequest https://github.com/resonite-modding-group/ResoniteModLoader/releases/latest/download/0Harmony.dll -OutFile Resonite/0Harmony.dll
 
       - name: Restore
-        run: dotnet restore ./DynVarSpaceTree.sln
+        run: dotnet restore ./DynVarSpaceTree.sln --locked-mode
 
       - name: Format
-        run: dotnet format ./DynVarSpaceTree.sln --verify-no-changes --no-restore
+        run: dotnet format ./DynVarSpaceTree.sln --no-restore --verify-no-changes
 
       - name: Build
         run: dotnet build ./DynVarSpaceTree.sln -c Release --no-restore
 
       - name: Test
-        run: dotnet test ./DynVarSpaceTree.sln -c Release --logger "console;verbosity=normal"
+        run: dotnet test ./DynVarSpaceTree.sln -c Release --no-build --logger "console;verbosity=normal"
 
       - name: Pack artifact
         if: startsWith(github.ref, 'refs/tags/v')
@@ -61,8 +62,21 @@ jobs:
           name: ResoniteDynVarSpaceTree
           path: artifacts/DynVarSpaceTree.dll
 
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v7
+        with:
+          name: ResoniteDynVarSpaceTree
+          path: artifacts
+
       - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v')
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: gh release create "${{ github.ref_name }}" ./artifacts/DynVarSpaceTree.dll --verify-tag --generate-notes
+        run: gh release create "${{ github.ref_name }}" ./artifacts/DynVarSpaceTree.dll --repo "${{ github.repository }}" --verify-tag --generate-notes

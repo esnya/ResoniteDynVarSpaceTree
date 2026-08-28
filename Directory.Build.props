@@ -119,19 +119,19 @@
 
   <ItemGroup Condition="'$(FrooxEnginePresent)'!='true'">
     <Reference Include="Elements.Assets">
-      <HintPath>$(PkgResonite_GameLibs)/ref/net9.0/Elements.Assets.dll</HintPath>
+      <HintPath>$(PkgResonite_GameLibs)/ref/net10.0/Elements.Assets.dll</HintPath>
       <Private>$(IsTestProject)</Private>
     </Reference>
     <Reference Include="Elements.Core">
-      <HintPath>$(PkgResonite_GameLibs)/ref/net9.0/Elements.Core.dll</HintPath>
+      <HintPath>$(PkgResonite_GameLibs)/ref/net10.0/Elements.Core.dll</HintPath>
       <Private>$(IsTestProject)</Private>
     </Reference>
     <Reference Include="FrooxEngine">
-      <HintPath>$(PkgResonite_GameLibs)/ref/net9.0/FrooxEngine.dll</HintPath>
+      <HintPath>$(PkgResonite_GameLibs)/ref/net10.0/FrooxEngine.dll</HintPath>
       <Private>$(IsTestProject)</Private>
     </Reference>
     <Reference Include="Renderite.Shared">
-      <HintPath>$(PkgResonite_GameLibs)/ref/net9.0/Renderite.Shared.dll</HintPath>
+      <HintPath>$(PkgResonite_GameLibs)/ref/net10.0/Renderite.Shared.dll</HintPath>
       <Private>$(IsTestProject)</Private>
     </Reference>
     <Reference Include="ResoniteModLoader">
@@ -153,7 +153,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(IsTestProject)'=='true' and '$(FrooxEnginePresent)'!='true'">
-    <ContentWithTargetPath Include="$(PkgResonite_GameLibs)/ref/net9.0/*.dll">
+    <ContentWithTargetPath Include="$(PkgResonite_GameLibs)/ref/net10.0/*.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <TargetPath>%(Filename)%(Extension)</TargetPath>
     </ContentWithTargetPath>

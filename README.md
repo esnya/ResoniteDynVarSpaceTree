@@ -1,7 +1,11 @@
 Dynamic Variable Space Tree
 ===========================
 
+[![CI](https://github.com/esnya/ResoniteDynVarSpaceTree/actions/workflows/ci.yml/badge.svg)](https://github.com/esnya/ResoniteDynVarSpaceTree/actions/workflows/ci.yml)
+
 A [ResoniteModLoader](https://github.com/resonite-modding-group/ResoniteModLoader) mod for [Resonite](https://resonite.com/) that adds buttons to the DynamicVariableSpace component in the inspector that allow copying all linked variable definitions or the whole hierarchy of linked dynamic variable components.
+
+This maintained fork is based on [Banane9/NeosDynVarSpaceTree](https://github.com/Banane9/NeosDynVarSpaceTree) and targets the current Resonite runtime and .NET 10.
 
 ## Installation
 
