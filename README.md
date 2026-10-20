@@ -63,3 +63,7 @@ Spotify Control 2.1.3: Namespace SpotifyStatus
 │ │ │   │ │   └─SpotifyStatus/CoverAccent (DynamicValueVariableDriver<color>)
 ...
 ```
+
+## AI-assisted development notice
+
+Generative-AI coding agents were used in the development of esnya's modifications in this maintained fork. The project describes use of this maintained version as indirect use of generative AI. If applicable law or the terms or policies of a platform or service applicable to your use requires disclosure of that indirect use, provide the required disclosure as specified by those requirements. This notice does not redefine any external requirement or add restrictions to the MIT No Attribution (MIT-0) License.
