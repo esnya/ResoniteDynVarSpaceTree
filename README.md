@@ -1,3 +1,13 @@
+## Migration to ResoniteEsnyaMods
+
+Development of this feature has moved to **ResoniteEsnyaMods 3.0.0**, in **EsnyaMods.Tools.dll**. Get the [distribution ZIP on resnyadb](https://resnyadb.nekometer.com/assets/c7210f0b70708ba66c93a5f47aa383db2dd76c8b60d03238283c425be2001495.zip), or import the [Static File into Resonite](https://resnyadb.nekometer.com/saved-graphs/6eacbb66ffb2b0675a81837e26408ad39e143c481d5f8c8aa72bfb4111d49eb9.brson). Requires .NET 10 Resonite and ResoniteModLoader 5.
+
+Close Resonite, remove **DynVarSpaceTree.dll** from its loading directories (including HotReloadMods, if used), place the integrated DLL in `rml_mods`, and restart. Do not load the legacy and integrated versions together.
+
+Back up your settings. Manually copy `EnableLinkedVariablesList` and `EnableVariableHierarchy` to the same keys prefixed with `DynVarSpaceTree.` in `rml_config/EsnyaMods.Tools.json`. Keep the existing JSON structure; do not replace the entire configuration file. The feature switch is `DynVarSpaceTree.Enabled`.
+
+---
+
 Dynamic Variable Space Tree
 ===========================
 
